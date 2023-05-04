@@ -1,0 +1,587 @@
+"""
+Experiment: 3 - BFS Algorithm
+"""
+from queue import Queue
+
+# Initialize Adjacency list
+adj_list = {
+    '1': ['2', '3'],
+    '2': ['4', '5'],
+    '3': ['6', '7'],
+    '4': [],
+    '5': [],
+    '6': [],
+    '7': [],
+}
+
+# Initialize Required Dictionaries
+visited = {}
+level = {}
+parent = {}
+
+# Initialize Required Dictionaries
+bfs_traversal_output = []
+
+# Initialize Queue Data Structure
+queue = Queue()
+
+# Assign initial values to each node
+for node in adj_list.keys():
+    visited[node] = False
+    parent[node] = None
+    level[node] = -1
+
+# Define Starting node
+starting_node = '1'
+visited[starting_node] = True
+level[starting_node] = 0
+queue.put(starting_node)
+
+# Traverse through each node
+while not queue.empty():
+    first_node = queue.get()
+    bfs_traversal_output.append(first_node)
+
+    for children in adj_list[first_node]:
+        if not visited[children]:
+            visited[children] = True
+            parent[children] = first_node
+            level[children] = level[first_node] + 1
+            queue.put(children)
+
+# Print result
+print(bfs_traversal_output)
+
+
+
+
+
+"""
+Experiment: 4 - DFS Algorithm
+"""
+
+# Initialize Adjacency list
+adj_list = {
+    '1': ['2', '3'],
+    '2': ['4', '5'],
+    '3': ['6', '7'],
+    '4': [],
+    '5': [],
+    '6': [],
+    '7': [],
+}
+
+# Initialize Required Dictionaries
+visited = {}
+parent = {}
+
+# Initialize Required Dictionaries
+dfs_traversal_output = []
+
+# Assign initial values to each node
+for node in adj_list.keys():
+    visited[node] = -1
+    parent[node] = None
+
+
+# Define Recursive function
+def dfs(node):
+    visited[node] = 0
+    dfs_traversal_output.append(node)
+
+    for children in adj_list[node]:
+        if visited[children] == -1:
+            parent[children] = children
+            dfs(children)
+
+    visited[node] = 1
+
+
+# Call function
+dfs('1')
+
+# Print result
+print(dfs_traversal_output)
+
+
+"""
+Exp 5: 8 Queen
+"""
+
+# Python program to solve N Queen
+# Problem using backtracking
+
+global N
+N = 8
+
+def printSolution(board):
+	for i in range(N):
+		for j in range(N):
+			print (board[i][j],end=' ')
+		print()
+
+
+def isSafe(board, row, col):
+
+	# Check this row on left side
+	for i in range(col):
+		if board[row][i] == 1:
+			return False
+
+	# Check upper diagonal on left side
+	for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+		if board[i][j] == 1:
+			return False
+
+	# Check lower diagonal on left side
+	for i, j in zip(range(row, N, 1), range(col, -1, -1)):
+		if board[i][j] == 1:
+			return False
+
+	return True
+
+def solveNQUtil(board, col):
+	# base case: If all queens are placed
+	# then return true
+	if col >= N:
+		return True
+
+	# Consider this column and try placing
+	# this queen in all rows one by one
+	for i in range(N):
+
+		if isSafe(board, i, col):
+			# Place this queen in board[i][col]
+			board[i][col] = 1
+
+			# recur to place rest of the queens
+			if solveNQUtil(board, col + 1) == True:
+				return True
+
+			# If placing queen in board[i][col
+			# doesn't lead to a solution, then
+			# queen from board[i][col]
+			board[i][col] = 0
+
+	# if the queen can not be placed in any row in
+	# this column col then return false
+	return False
+
+
+def solveNQ():
+	board = [ 
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0]
+		  ]
+
+	if solveNQUtil(board, 0) == False:
+		print ("Solution does not exist")
+		return False
+
+	printSolution(board)
+	return True
+
+# driver program to test above function
+solveNQ()
+
+
+"""
+Exp 6: 8 Puzzle 
+"""
+
+import copy
+from heapq import heappush, heappop
+
+n = 3
+
+# bottom, left, top, right
+row = [ 1, 0, -1, 0 ]
+col = [ 0, -1, 0, 1 ]
+
+# A class for Priority Queue
+class priorityQueue:
+	
+
+	def __init__(self):
+		self.heap = []
+
+	# Inserts a new key 'k'
+	def push(self, k):
+		heappush(self.heap, k)
+
+
+	def pop(self):
+		return heappop(self.heap)
+
+
+	def empty(self):
+		if not self.heap:
+			return True
+		else:
+			return False
+
+# Node structure
+class node:
+	
+	def __init__(self, parent, mat, empty_tile_pos,
+				cost, level):
+					
+		self.parent = parent
+
+		# Stores the matrix
+		self.mat = mat
+
+		self.empty_tile_pos = empty_tile_pos
+
+		# Stores the number of misplaced tiles
+		self.cost = cost
+
+		self.level = level
+
+	def __lt__(self, nxt):
+		return self.cost < nxt.cost
+
+
+def calculateCost(mat, final) -> int:
+	
+	count = 0
+	for i in range(n):
+		for j in range(n):
+			if ((mat[i][j]) and
+				(mat[i][j] != final[i][j])):
+				count += 1
+				
+	return count
+
+def newNode(mat, empty_tile_pos, new_empty_tile_pos,
+			level, parent, final) -> node:
+				
+	# Copy data from parent matrix to current matrix
+	new_mat = copy.deepcopy(mat)
+
+	# Move tile by 1 position
+	x1 = empty_tile_pos[0]
+	y1 = empty_tile_pos[1]
+	x2 = new_empty_tile_pos[0]
+	y2 = new_empty_tile_pos[1]
+	new_mat[x1][y1], new_mat[x2][y2] = new_mat[x2][y2], new_mat[x1][y1]
+
+	# Set number of misplaced tiles
+	cost = calculateCost(new_mat, final)
+
+	new_node = node(parent, new_mat, new_empty_tile_pos,
+					cost, level)
+	return new_node
+
+# Function to print the N x N matrix
+def printMatrix(mat):
+	
+	for i in range(n):
+		for j in range(n):
+			print("%d " % (mat[i][j]), end = " ")
+			
+		print()
+
+def isSafe(x, y):
+	
+	return x >= 0 and x < n and y >= 0 and y < n
+
+# Print path from root node to destination node
+def printPath(root):
+	
+	if root == None:
+		return
+	
+	printPath(root.parent)
+	printMatrix(root.mat)
+	print()
+
+def solve(initial, empty_tile_pos, final):
+	
+	# Create a priority queue to store live
+	# nodes of search tree
+	pq = priorityQueue()
+
+	# Create the root node
+	cost = calculateCost(initial, final)
+	root = node(None, initial,
+				empty_tile_pos, cost, 0)
+
+	# Add root to list of live nodes
+	pq.push(root)
+
+	while not pq.empty():
+
+		minimum = pq.pop()
+
+		# If minimum is the answer node
+		if minimum.cost == 0:
+			
+			printPath(minimum)
+			return
+
+		# Generate all possible children
+		for i in range(4):
+			new_tile_pos = [
+				minimum.empty_tile_pos[0] + row[i],
+				minimum.empty_tile_pos[1] + col[i], ]
+				
+			if isSafe(new_tile_pos[0], new_tile_pos[1]):
+				
+				# Create a child node
+				child = newNode(minimum.mat,
+								minimum.empty_tile_pos,
+								new_tile_pos,
+								minimum.level + 1,
+								minimum, final,)
+
+				# Add child to list of live nodes
+				pq.push(child)
+
+# Driver Code
+
+# Initial configuration
+# Value 0 is used for empty space
+initial = [ [ 1, 2, 3 ],
+			[ 5, 6, 0 ],
+			[ 7, 8, 4 ] ]
+
+# Solvable Final configuration
+# Value 0 is used for empty space
+final = [ [ 1, 2, 3 ],
+		[ 5, 8, 6 ],
+		[ 0, 7, 4 ] ]
+
+# Blank tile coordinates in
+# initial configuration
+empty_tile_pos = [ 1, 2 ]
+
+# Function call to solve the puzzle
+solve(initial, empty_tile_pos, final)
+
+"""
+Exp 7: A star
+"""
+
+class box():
+"""A box class for A* Pathfinding"""
+def __init__(self, parent=None, position=None):
+self.parent = parent
+self.position = position
+self.g = 0
+self.h = 0
+self.f = 0
+def __eq__(self, other):
+return self.position == other.position
+def astar(maze, start, end):
+"""Returns a list of tuples as a path from the given start to the given end in the given board"""
+# Create start and end node
+start_node = box(None, start)
+start_node.g = start_node.h = start_node.f = 0
+end_node = box(None, end)
+end_node.g = end_node.h = end_node.f = 0
+# Initialize both open and closed list
+open_list = []
+closed_list = []
+# Add the start node
+open_list.append(start_node)
+# Loop until you find the end
+while len(open_list) > 0:
+# Get the current node
+current_node = open_list[0]
+current_index = 0
+for index, item in enumerate(open_list):
+if item.f < current_node.f:
+current_node = item
+current_index = index
+# Pop current off open list, add to closed list
+open_list.pop(current_index)
+closed_list.append(current_node)
+# Found the goal
+if current_node == end_node:
+path = []
+current = current_node
+while current is not None:
+path.append(current.position)
+current = current.parent
+return path[::-1] # Return reversed path
+# Generate children
+children = []
+for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
+# Get node position
+node_position = (current_node.position[0] + new_position[0], current_node.position[1] +
+new_position[1])
+# Make sure within range
+if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] >
+(len(maze[len(maze)-1]) -1) or node_position[1] < 0:
+continue
+# Make sure walkable terrain
+if maze[node_position[0]][node_position[1]] != 0:
+continue
+# Create new node
+new_node = box(current_node, node_position)
+# Append
+children.append(new_node)
+# Loop through children
+for child in children:
+# Child is on the closed list
+for closed_child in closed_list:
+if child == closed_child:
+continue
+# Create the f, g, and h values
+child.g = current_node.g + 1
+child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1])
+** 2)
+child.f = child.g + child.h
+# Child is already in the open list
+for open_node in open_list:
+if child == open_node and child.g > open_node.g:
+continue
+# Add the child to the open list
+open_list.append(child)
+def main():
+board = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
+start = (0, 0)
+end = (6, 6)
+path = astar(board, start, end)
+print(path)
+if __name__ == '__main__':
+main()
+
+
+"""
+Exp 8: Min-Max with alpha beta pruning
+"""
+
+# Python3 program to demonstrate
+# working of Alpha-Beta Pruning
+
+# Initial values of Alpha and Beta
+MAX, MIN = 1000, -1000
+
+# Returns optimal value for current player
+#(Initially called for root and maximizer)
+def minimax(depth, nodeIndex, maximizingPlayer,
+			values, alpha, beta):
+
+	# Terminating condition. i.e
+	# leaf node is reached
+	if depth == 3:
+		return values[nodeIndex]
+
+	if maximizingPlayer:
+	
+		best = MIN
+
+		# Recur for left and right children
+		for i in range(0, 2):
+			
+			val = minimax(depth + 1, nodeIndex * 2 + i,
+						False, values, alpha, beta)
+			best = max(best, val)
+			alpha = max(alpha, best)
+
+			# Alpha Beta Pruning
+			if beta <= alpha:
+				break
+		
+		return best
+	
+	else:
+		best = MAX
+
+		# Recur for left and
+		# right children
+		for i in range(0, 2):
+		
+			val = minimax(depth + 1, nodeIndex * 2 + i,
+							True, values, alpha, beta)
+			best = min(best, val)
+			beta = min(beta, best)
+
+			# Alpha Beta Pruning
+			if beta <= alpha:
+				break
+		
+		return best
+	
+# Driver Code
+if __name__ == "__main__":
+
+	values = [3, 5, 6, 9, 1, 2, 0, -1]
+	print("The optimal value is :", minimax(0, 0, True, values, MIN, MAX))
+	
+
+"""
+Exp 9: Prolog
+"""
+
+Prolog program to calculate the factorial of a given number.
+Code:
+fact(0,1).
+fact(N,F):-
+(
+% The below is for +ve factorial.
+N>0 ->
+(
+N1 is N-1,
+fact(N1,F1),
+F is N*F1
+)
+;
+% The below is for -ve factorial.
+N<0 ->
+(
+N1 is N+1,
+fact(N1,F1),
+F is N*F1
+)
+).
+
+Execute:
+1) ['filename.pl'].
+2) fact(AnyNumber, ANS).
+
+Write a program to find Nth term in Fibonacci series
+Code:
+fibonacci(1,1).
+fibonacci(2,1).
+fibonacci(N,X):-N>=3,N1 is N-1,N2 is N-2,
+fibonacci(N1,X1),fibonacci(N2,X2),X is X1+X2.
+
+Execute:
+1) ['filename.pl'].
+2) fibonacci(AnyNumber, ANS).
+
+"""
+Exp 10: Hanoi
+"""
+
+%Define a predicate that solves the Tower of Hanoi problem
+hanoi(N) :-
+    move(N,left,center,right).
+
+%Define a predicate that prints the moves
+move(0,_,_,_) :-!.
+move(N,A,B,C) :-
+    M is N-1,
+    move(M,A,C,B),
+    format('Move disk ~w from ~w to ~w~n',[N,A,C]),
+    move(M,B,A,C).
+
+Execute:
+1) ['filename.pl'].
+2) hanoi(AnyNumber).
+
